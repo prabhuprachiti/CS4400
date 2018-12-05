@@ -1,0 +1,96 @@
+SQL statements
+
+Login: SELECT `username`, `email`, `pwd`, `type` FROM `user_base` WHERE `email` = %s OR `username` = %s
+Register: INSERT INTO `user_base` (`username`, `email`, `pwd`, `type`)  VALUES (%s, %s, X%s, %s)
+
+===================
+VISITORS: all Visitor-specific actions occur only after proper authentification
+===================
+Search exhibit: 
+	SELECT *, (SELECT COUNT(*) FROM animal b WHERE a.name = b.exhname) AS numanimals  FROM `exhibit` a WHERE 1 ORDER BY [name, size, numanimals, water] [DESC]
+	SEARCHING EXHIBITS:
+		SELECT *, (SELECT COUNT(*) FROM animal b WHERE a.name = b.exhname) AS numanimals  FROM `exhibit` a WHERE haswater = TRUE AND exhsize BETWEEN %s AND %s AND name = %s HAVING numanimals BETWEEN %s AND %s ORDER BY name
+
+View Exhibit History:
+	SELECT *, (SELECT COUNT(*) FROM exhibit_visit b WHERE a.name = b.name AND a.visitoruname = b.visitoruname) AS numvisits  FROM `exhibit_visit` a WHERE visitoruname = %s ORDER BY time DESC
+	SEARCHING EXHIBITS:
+		SELECT *, (SELECT COUNT(*) FROM exhibit_visit b WHERE a.name = b.name AND a.visitoruname = b.visitoruname) AS numvisits  FROM `exhibit_visit` a WHERE visitoruname = %s AND time >= %s AND time < %s AND name COLLATE UTF8_GENERAL_CI LIKE %s HAVING numvisits BETWEEN %s AND %s ORDER BY time DESC
+
+Search shows:
+	INITIAL VIEW:
+		SELECT * FROM `exhibit_show` a WHERE 1 ORDER BY showtime DESC
+	SELECT * FROM `exhibit_show` a WHERE exhname COLLATE UTF8_GENERAL_CI LIKE %s AND showtime >= %s AND showtime < %s AND name COLLATE UTF8_GENERAL_CI LIKE %s ORDER BY showtime DESC
+
+View Show History:
+	SELECT *, (SELECT exhname FROM exhibit_show b WHERE a.name = b.name AND a.time = b.showtime) AS exhname  FROM `show_visit` a WHERE visitoruname = %s ORDER BY time DESC
+	SEARCHING SHOWS:
+		SELECT *, (SELECT exhname FROM exhibit_show b WHERE a.name = b.name AND a.time = b.showtime) AS exhname  FROM `show_visit` a WHERE visitoruname = %s AND time >= %s AND time < %s AND name COLLATE UTF8_GENERAL_CI LIKE %s HAVING exhname COLLATE UTF8_GENERAL_CI LIKE %s ORDER BY time DESC
+
+Search Animals:
+	SELECT *, (SELECT COUNT(*) FROM animal b WHERE a.name = b.exhname) AS numanimals  FROM `exhibit` a WHERE 1 ORDER BY name
+	SEARCHING ANIMALS:
+		SELECT * FROM `animal` a WHERE species COLLATE UTF8_GENERAL_CI LIKE '%%s%%' AND type = %s AND exhname COLLATE UTF8_GENERAL_CI LIKE '%%s%%' AND age BETWEEN %s AND %s AND name COLLATE UTF8_GENERAL_CI LIKE '%%s%%' ORDER BY name
+	EXHIBIT VIEW:
+		SELECT * FROM `animal` a WHERE exhname COLLATE UTF8_GENERAL_CI LIKE %s ORDER BY name
+
+Exhibit Detail:
+	SELECT * FROM `animal` a WHERE exhname COLLATE UTF8_GENERAL_CI LIKE %s ORDER BY name
+	LOGGING VISIT:
+		INSERT INTO exhibit_visit(visitoruname,name,time) VALUES (%s,%s,%s)
+
+============
+STAFF: all Staff-specific actions occur only after proper authentification
+============
+
+Animal Details:
+	SELECT * FROM `note` a WHERE subjname = %s AND subjspecies = %s ORDER BY notetime DESC
+	POSTING A NOTE:
+		INSERT INTO note(authuname,subjname,subjspecies,notetext) VALUES (%s,%s,%s,%s)
+
+View Shows:
+	SELECT * FROM `exhibit_show` a WHERE hostname = %s ORDER BY showtime DESC
+
+=============
+ADMIN: all Admin-specific actions occur only after proper authentification
+=============
+
+View Visitors:
+	SELECT * FROM `user_base` a WHERE type = 'visitor' ORDER BY username
+	SEARCHING FOR USERS:
+		SELECT * FROM `user_base` a WHERE username COLLATE UTF8_GENERAL_CI LIKE %s AND email COLLATE UTF8_GENERAL_CI LIKE %s AND type = %s ORDER BY username
+	DELETING A USER:
+		DELETE FROM `user_base` WHERE username = %s
+
+View Staff:
+	SELECT * FROM `user_base` a WHERE type = 'staff' ORDER BY username
+	SEARCHING FOR STAFF:
+		SELECT * FROM `user_base` a WHERE username COLLATE UTF8_GENERAL_CI LIKE %s AND email COLLATE UTF8_GENERAL_CI LIKE %s AND type = %s ORDER BY username
+	DELETING A STAFF MEMBER:
+		DELETE FROM `user_base` WHERE username = %s
+
+View Shows:
+	SELECT * FROM `exhibit_show` a WHERE 1 ORDER BY showtime DESC
+	SEARCHING FOR SHOWS:
+		SELECT * FROM `exhibit_show` a WHERE exhname COLLATE UTF8_GENERAL_CI LIKE %s AND showtime >= %s AND showtime < %s AND name COLLATE UTF8_GENERAL_CI LIKE %s ORDER BY showtime DESC
+	DELETING A SHOW:
+		DELETE FROM `exhibit_show` WHERE name = %s AND showtime = %s
+
+View Animals:
+	SELECT * FROM `animal` a WHERE 1 ORDER BY name
+	SEARCHING FOR ANIMALS:
+		SELECT * FROM `animal` a WHERE species COLLATE UTF8_GENERAL_CI LIKE %s AND type = %s AND exhname COLLATE UTF8_GENERAL_CI LIKE %s AND age BETWEEN %s AND %s AND name COLLATE UTF8_GENERAL_CI LIKE %s ORDER BY name
+	DELETING AN ANIMAL:
+		DELETE FROM `animal` WHERE name = %s AND species = %s
+
+Add Animal: 
+	INSERT INTO animal(name,species,type,age,exhname) VALUES (%s,%s,%s,%s,%s)
+
+Add Shows:
+	SELECT * FROM `user_base` a WHERE type = 'staff' ORDER BY username
+	INSERT INTO exhibit_show(name,showtime,exhname,hostname) VALUES (%s,%s,%s,%s)
+
+
+
+
+
+

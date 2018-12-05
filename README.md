@@ -1,2 +1,2 @@
-# CS4400
-An application for "Intro to Databases" course at Georgia Tech (CS4400)
+# cs4400project
+CS 4400 final project
